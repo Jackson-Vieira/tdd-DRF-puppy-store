@@ -53,17 +53,20 @@ class PostPuppyTest(APITestCase):
         )
 
     def test_create_puppy_unauthenticated(self):
-        response = self.client.post(self.valid_data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        response = self.client.post(
+            reverse("get_post_puppies"), self.valid_data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_create_puppy_with_valid_data(self):
         self._authenticate()
         response = self.client.post(
             reverse("get_post_puppies"), self.valid_data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.client.logout()
 
     def test_create_puppy_with_invalid_data(self):
         self._authenticate()
         response = self.client.post(
             reverse("get_post_puppies"), self.invalid_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.client.logout()

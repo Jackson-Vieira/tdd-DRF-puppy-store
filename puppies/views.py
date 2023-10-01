@@ -1,6 +1,7 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from puppies.models import Puppy
 from puppies.serializers import PuppySerializer
 
@@ -19,10 +20,14 @@ def get_delete_update_puppy(request, pk):
 
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def get_post_puppies(request):
     if request.method == 'GET':
         puppies = Puppy.objects.all()
         serializer = PuppySerializer(puppies, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
-        return Response({})
+        serializer = PuppySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(status=status.HTTP_201_CREATED)
