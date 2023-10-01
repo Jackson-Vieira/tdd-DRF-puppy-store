@@ -5,6 +5,8 @@ from puppies.serializers import PuppySerializer
 
 from django.urls import reverse
 
+from django.contrib.auth.models import User
+
 
 class GetAllPuppiesTest(APITestCase):
     def setUp(self):
@@ -23,3 +25,45 @@ class GetAllPuppiesTest(APITestCase):
         serializer = PuppySerializer(puppies, many=True)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer.data)
+
+
+class PostPuppyTest(APITestCase):
+    def setUp(self):
+        User.objects.create_superuser(
+            username="admin",
+            password="admin"
+        )
+        self.valid_data = {
+            "name": "Casper",
+            "age": 3,
+            "breed": "Bull Dog",
+            "color":  "Black"
+        }
+        self.invalid_data = {
+            "name": "Casper",
+            "age": -2,
+            "breed": "Bull Dog",
+            "color":  ""
+        }
+
+    def _authenticate(self):
+        self.client.login(
+            username="admin",
+            password="admin"
+        )
+
+    def test_create_puppy_unauthenticated(self):
+        response = self.client.post(self.valid_data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_create_puppy_with_valid_data(self):
+        self._authenticate()
+        response = self.client.post(
+            reverse("get_post_puppies"), self.valid_data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_puppy_with_invalid_data(self):
+        self._authenticate()
+        response = self.client.post(
+            reverse("get_post_puppies"), self.invalid_data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
