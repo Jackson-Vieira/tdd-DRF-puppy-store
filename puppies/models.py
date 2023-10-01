@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 
 
 class BaseModel(models.Model):
@@ -11,7 +12,9 @@ class BaseModel(models.Model):
 
 class Puppy(BaseModel):
     name = models.CharField(max_length=255)
-    age = models.IntegerField()
+    age = models.IntegerField(
+        validators=[MinValueValidator(0)]
+    )
     breed = models.CharField(max_length=255)
     color = models.CharField(max_length=255)
 

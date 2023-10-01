@@ -70,3 +70,53 @@ class PostPuppyTest(APITestCase):
             reverse("get_post_puppies"), self.invalid_data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.client.logout()
+
+
+class GetSinglePuppyTest(APITestCase):
+    def setUp(self):
+        Puppy.objects.create(
+            name='Casper', age=3, breed='Bull Dog', color='Black')
+
+    def test_get_puppy_detail(self):
+        puppy = Puppy.objects.get(id=1)
+        response = self.client.get(
+            reverse("get_delete_update_puppy", kwargs={"pk": 1}))
+        serializer = PuppySerializer(instance=puppy)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, serializer.data)
+
+    def test_update_puppy(self):
+        data = {
+            "name": "Casper",
+            "age": 3,
+            "breed": "Bull Dog",
+            "color":  "Black"
+        }
+        response = self.client.put(
+            reverse("get_delete_update_puppy", kwargs={"pk": 1}), data
+        )
+        puppy = Puppy.objects.get(id=1)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.data["name"], puppy.name)
+        self.assertEqual(response.data["age"], puppy.age)
+        self.assertEqual(response.data["breed"], puppy.breed)
+        self.assertEqual(response.data["color"], puppy.color)
+    
+    def test_update_puppy_with_invalid(self):
+        data = {
+            "name": "Casper",
+            "age": -2,
+            "breed": "Bull Dog",
+            "color":  "Black"
+        }
+        response = self.client.put(
+            reverse("get_delete_update_puppy", kwargs={"pk": 1}), data=data
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_delete_puppy(self):
+        response = self.client.delete(
+            reverse("get_delete_update_puppy",  kwargs={"pk": 1}))
+        count_pupppies = Puppy.objects.count()
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(count_pupppies, 0)
