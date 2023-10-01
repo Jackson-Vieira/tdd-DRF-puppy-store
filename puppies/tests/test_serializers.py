@@ -1,15 +1,6 @@
-from rest_framework.serializers import ModelSerializer
+from puppies.serializers import PuppySerializer
 from puppies.models import Puppy
-
 from django.test import TestCase
-
-
-class PuppySerializer(ModelSerializer):
-    class Meta:
-        model = Puppy
-        fields = [
-            'name', 'age', 'breed', 'color', 'created_at', 'updated_at'
-        ]
 
 
 class PuppySerializerTest(TestCase):
