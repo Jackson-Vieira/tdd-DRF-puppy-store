@@ -16,3 +16,10 @@ def get_delete_update_puppy(request, pk):
         return Response({})
     elif request.method == 'GET':
         return Response({})
+
+
+def get_post_puppies(request):
+    if request.method == 'GET':
+        return Response({})
+    elif request.method == 'POST':
+        return Response({})
